@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RouteMaster — Warehouse Order Picker</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;500&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00f5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+      </div>
+      <div class="logo">Route<em>Master</em></div>
+    </div>
+
+    <div class="mode-ind" id="mode-ind">SYSTEM READY</div>
+
+    <div class="header-right">
+      <div class="hbadge">HACKARENA 2026</div>
+      <div class="hbadge" style="color:#00f5ff; border-color:#1a3a6a;">LOGISTICS / OPT</div>
+    </div>
+  </header>
+
+
+  <!-- ── APP ── -->
+  <div class="app">
+
+    <!-- ────────────────── LEFT PANEL ────────────────── -->
+    <div class="left">
+      <div class="sec-title">Input Configuration <span class="tag">JSON</span></div>
+
+      <div class="left-body">
+
+        <!-- JSON textarea -->
+        <div>
+          <div class="field-label">Warehouse JSON Payload</div>
+          <div class="json-wrap">
+            <textarea id="json-input" spellcheck="false">{
+  "grid": [
+    [0, 0, 1],
+    [1, 0, 1],
+    [0, 2, 0]
+  ],
+  "start": [0, 0],
+  "targets": [[2, 1]]
+}</textarea>
+            <div class="corner-mark"></div>
+          </div>
+          <div class="err-box" id="err-box">⚠ PARSE ERROR — CHECK SYNTAX</div>
+        </div>
+
+        <!-- Cell value reference -->
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <span style="font-family:'JetBrains Mono',monospace; font-size:9px; padding:3px 8px; border:1px solid #1a3a6a; background:rgba(0,245,255,0.04); color:var(--cyan);">0 = walk</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:9px; padding:3px 8px; border:1px solid #3a1800; background:rgba(255,107,0,0.04); color:var(--orange);">1 = shelf</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:9px; padding:3px 8px; border:1px solid #3a2a00; background:rgba(255,214,10,0.04); color:var(--yellow);">2 = item</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:9px; padding:3px 8px; border:1px solid var(--border); color:var(--text-dim);">1 target only</span>
+        </div>
+
+        <!-- File upload -->
+        <div>
+          <div class="field-label">Load from File</div>
+          <div class="file-row">
+            <button class="ghost-btn" onclick="document.getElementById('file-in').click()">↑ Upload .json</button>
+            <input type="file" id="file-in" accept=".json" onchange="loadFile(event)" />
+          </div>
+        </div>
+
+        <!-- Animation speed -->
+        <div>
+          <div class="field-label">Animation Speed</div>
+          <div class="speed-wrap">
+            <input type="range" id="speed-slider" min="20" max="500" value="150" oninput="updateSpeed(this)" />
+            <div class="speed-lbl" id="speed-lbl">150ms</div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="btn-run-wrap">
+          <button class="btn-run" id="btn-run" onclick="runVisualization()">
+            <div class="btn-run-inner">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              Calculate Route
+            </div>
+          </button>
+        </div>
+
+        <button class="btn-reset" onclick="resetAll()">↺ Reset</button>
+
+      </div><!-- /left-body -->
+
+      <!-- ── OUTPUT PANEL ── -->
+      <div class="out-panel" id="out-panel">
+        <div class="field-label">Route Output</div>
+
+        <!-- 4 stat boxes (mandatory schema fields) -->
+        <div class="stats-grid">
+          <div class="stat-box" id="box-steps">
+            <div class="stat-num" id="stat-steps">—</div>
+            <div class="stat-lbl">total_steps</div>
+          </div>
+          <div class="stat-box" id="box-reached">
+            <div class="stat-num" id="stat-reached">—</div>
+            <div class="stat-lbl">target_reached</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="stat-pathlen">—</div>
+            <div class="stat-lbl">path length</div>
+          </div>
+          <div class="stat-box" style="border-top-color:var(--yellow)">
+            <div class="stat-num" id="stat-ms" style="color:var(--yellow); text-shadow:0 0 16px rgba(255,214,10,0.5)">—</div>
+            <div class="stat-lbl">exec_time_ms</div>
+          </div>
+        </div>
+
+        <!-- JSON output -->
+        <div class="json-block-wrap">
+          <pre class="json-block" id="json-out"></pre>
+          <button class="copy-btn" onclick="copyOutput()">COPY</button>
+        </div>
+      </div><!-- /out-panel -->
+
+    </div><!-- /left -->
+
+
+    <!-- ────────────────── RIGHT PANEL ────────────────── -->
+    <div class="right">
+
+      <!-- Viz bar with legend -->
+      <div class="viz-bar">
+        <div class="viz-title">Warehouse Grid · <span>A* Path Visualization</span></div>
+        <div class="legend">
+          <div class="leg">
+            <div class="leg-swatch" style="background:linear-gradient(135deg,#001f10,#003020); border:2px solid #00ff88;">S</div>
+            Start
+          </div>
+          <div class="leg">
+            <div class="leg-swatch" style="background:#1f0e0e; border:1px solid #6e1a1a; color:#f85149;">✕</div>
+            Shelf
+          </div>
+          <div class="leg">
+            <div class="leg-swatch" style="background:linear-gradient(135deg,#1f1600,#2e2100); border:2px solid #ffd60a;">📦</div>
+            Item
+          </div>
+          <div class="leg">
+            <div class="leg-swatch" style="background:rgba(0,180,80,0.12); border:1px solid rgba(0,245,255,0.4);">👣</div>
+            Path
+          </div>
+          <div class="leg">
+            <div class="leg-swatch" style="background:linear-gradient(135deg,#003050,#005070); border:2px solid #00f5ff;">🚶</div>
+            Picker
+          </div>
+          <div class="leg">
+            <div class="leg-swatch" style="background:linear-gradient(135deg,#001f10,#004030); border:2px solid #00ff88;">✓</div>
+            Done
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid canvas -->
+      <div class="grid-area" id="grid-area">
+        <div class="placeholder" id="placeholder">
+          <div class="ph-icon">🏭</div>
+          <div class="ph-text">
+            <strong>Awaiting Warehouse Data</strong>
+            Paste JSON config on the left<br>
+            and press Calculate Route<br>
+            to visualize the A* path
+          </div>
+        </div>
+        <div id="wgrid"></div>
+      </div>
+
+      <!-- Live status strip -->
+      <div class="status-strip" id="status-strip">
+        <div class="stat-item">Step: <span class="v" id="s-steps">0</span></div>
+        <div class="stat-item" id="s-reached-wrap" style="display:none">
+          Reached: <span class="vg" id="s-reached">—</span>
+        </div>
+        <div class="prog-wrap"><div class="prog-fill" id="prog-fill"></div></div>
+        <div class="stat-item">Status: <span class="vo" id="s-status">—</span></div>
+      </div>
+
+    </div><!-- /right -->
+
+  </div><!-- /app -->
+
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- JavaScript -->
+  <script src="app.js"></script>
+
+</body>
+</html>
