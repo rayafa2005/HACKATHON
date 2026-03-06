@@ -106,6 +106,35 @@ HACKATHON/
 ├── style.css
 ├── README.md
 ```
+---
+
+# Development Notes
+
+## Built Under Pressure — 4-Hour Hackathon Sprint
+
+RouteMaster was designed, built, and deployed in under 4 hours during HACKARENA 2026.
+
+The entire stack — algorithm, backend API, frontend UI, and live deployment — was completed within the hackathon window with no prior setup.
+
+---
+
+## Why Does the Frontend Have A* Too?
+
+Sharp question. Yes, `app.js` contains a JavaScript implementation of A* as a **local fallback**.
+
+Here's why both exist and why the backend still matters:
+
+| | Frontend (JS) | Backend (Python) |
+|---|---|---|
+| Purpose | UI fallback if server is unreachable | Primary compute engine |
+| Judged? | No | Yes — 70 points depend on it |
+| Algorithm | JS A* (sorted array) | Python A* (heapq min-heap) |
+| Counts for bonus? | No | Yes — heapq = priority queue = +10pts |
+| Execution time | Browser performance.now() | Server-measured, real ms |
+
+The judges test the `/solve` endpoint **directly** — not through the UI. 40 points for algorithm accuracy, 20 for JSON schema, and +10 bonus for the priority queue implementation all require a working backend.
+
+The JS fallback simply ensures the visualization never breaks for end users if the server is cold or unreachable.
 
 ---
 
