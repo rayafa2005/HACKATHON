@@ -97,20 +97,14 @@ Because movement is **4-directional**, Manhattan distance guarantees that A* alw
 # Project Structure
 
 ```
-routemaster/
+HACKATHON/
 │
-├── backend/
-│   ├── algorithm.py
-│   ├── main.py
-│   └── requirements.txt
-│
-├── frontend/
-│   ├── index.html
-│   ├── styles.css
-│   └── app.js
-│
+├── algorithm.py
+├── app.js
+├── index.html
+├── main.py
+├── style.css
 ├── README.md
-└── .gitignore
 ```
 
 ---
@@ -125,7 +119,7 @@ routemaster/
 | Styling         | CSS                       |
 | Visualization   | JavaScript Grid Rendering |
 | API Testing     | FastAPI /docs             |
-| Deployment      | ngrok                     |
+| Deployment      | netlify                   |
 | Version Control | Git + GitHub              |
 
 ---
