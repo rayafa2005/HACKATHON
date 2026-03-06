@@ -52,9 +52,9 @@ def solve(req: SolveRequest):
     if grid[tr][tc] == 1:
         raise HTTPException(status_code=400, detail=f"target {target} is on a wall")
 
-    t0   = time.time()
+    t0   = time.perf_counter()
     path = astar(grid, start, target)
-    t1   = time.time()
+    t1   = time.perf_counter()
     ms   = int((t1 - t0) * 1000)
 
     if path is None:
@@ -64,5 +64,5 @@ def solve(req: SolveRequest):
         total_steps=len(path) - 1,
         path=path,
         target_reached=True,
-        execution_time_ms=ms
+        execution_time_ms=round((t1 - t0) * 1000, 3)
     )
